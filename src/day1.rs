@@ -1,4 +1,4 @@
-// Day 1: Trebuchet?! ---
+// --- Day 1: Trebuchet?! ---
 //
 // Something is wrong with global snow production, and you've been selected to take a look. The Elves have even given you a map; on it, they've used stars to mark the top fifty locations that are likely to be having problems.
 //
@@ -22,94 +22,85 @@
 // In this example, the calibration values of these four lines are 12, 38, 15, and 77. Adding these together produces 142.
 //
 // Consider your entire calibration document. What is the sum of all of the calibration values?
-
-use regex::Regex;
+//
+//
+// --- Part Two ---
+//
+// Your calculation isn't quite right. It looks like some of the digits are actually spelled out with letters: one, two, three, four, five, six, seven, eight, and nine also count as valid "digits".
+//
+// Equipped with this new information, you now need to find the real first and last digit on each line. For example:
+//
+// two1nine
+// eightwothree
+// abcone2threexyz
+// xtwone3four
+// 4nineeightseven2
+// zoneight234
+// 7pqrstsixteen
+//
+// In this example, the calibration values are 29, 83, 13, 24, 42, 14, and 76. Adding these together produces 281.
+//
+// What is the sum of all of the calibration values?
 
 pub fn solution_p1(input_file: &str) {
     let input_str = std::fs::read_to_string(input_file).unwrap();
-    let mut calib_values_per_line = Vec::new();
-    input_str.lines().for_each(|line| {
-        let mut values_per_line = Vec::new();
-        line.chars().for_each(|ch| {
-            if ch.is_ascii_digit() {
-                // println!("{line} has digit: {ch}");
-                values_per_line.push(ch);
-            }
-        });
-        calib_values_per_line.push(values_per_line);
-    });
-
-    // println!("{calib_values_per_line:?}");
-
     let mut answer = 0;
-    calib_values_per_line.iter().for_each(|line| {
-        if !line.is_empty() {
-            if line.len() == 1 {
-                answer += format!("{}{}", line[0], line[0]).parse::<usize>().unwrap();
-            } else {
-                answer += format!("{}{}", line.first().unwrap(), line.last().unwrap())
-                    .parse::<usize>()
-                    .unwrap();
-            }
-        }
+    input_str.lines().for_each(|line| {
+        let numbers_per_line = line
+            .chars()
+            .filter_map(|c| c.to_digit(10))
+            .collect::<Vec<_>>();
+        // println!("{numbers_per_line:?}");
+
+        // Assuming each line has at-least one number
+        answer += numbers_per_line.first().unwrap() * 10
+            + numbers_per_line
+                .last()
+                .unwrap_or(numbers_per_line.first().unwrap());
     });
 
     println!("p1: {input_file} answer: {answer}");
 }
 
-fn extract_number_from_match(m: regex::Match<'_>) -> Option<&str> {
+fn extract_number_from_match(m: regex::Match<'_>) -> Option<usize> {
     match m.as_str() {
-        "zero" => Some("0"),
-        "one" => Some("1"),
-        "two" => Some("2"),
-        "three" => Some("3"),
-        "four" => Some("4"),
-        "five" => Some("5"),
-        "six" => Some("6"),
-        "seven" => Some("7"),
-        "eight" => Some("8"),
-        "nine" => Some("9"),
+        "zero" => Some(0),
+        "one" => Some(1),
+        "two" => Some(2),
+        "three" => Some(3),
+        "four" => Some(4),
+        "five" => Some(5),
+        "six" => Some(6),
+        "seven" => Some(7),
+        "eight" => Some(8),
+        "nine" => Some(9),
         // Because our regex will only extract [0-9] or their alphabetic version
-        _ => Some(m.as_str()),
+        _ => m.as_str().parse().ok(),
     }
 }
 
 pub fn solution_p2(input_file: &str) {
-    let r =
-        Regex::new(r"(?<x>[[:digit:]]|zero|one|two|three|four|five|six|seven|eight|nine)").unwrap();
+    let r = regex::Regex::new(r"([[:digit:]]|zero|one|two|three|four|five|six|seven|eight|nine)")
+        .unwrap();
 
     let input_str = std::fs::read_to_string(input_file).unwrap();
-    let mut calib_values_per_line = Vec::new();
-    input_str.lines().for_each(|line| {
-        let mut values_per_line = Vec::new();
-        r.captures_iter(line).for_each(|m| {
-            // println!("m: {m:?}");
-            if let Some(first) = m.name("x") {
-                values_per_line.push(extract_number_from_match(first).unwrap());
-            }
-        });
-        calib_values_per_line.push(values_per_line);
-    });
-    // println!("p2: {calib_values_per_line:?}");
     let mut answer = 0;
-    let mut count = 0;
-    calib_values_per_line.iter().for_each(|line| {
-        count += 1;
-        if !line.is_empty() {
-            if line.len() == 1 {
-                // println!("{count} adding: {}{}", line[0], line[0]);
-                answer += format!("{}{}", line[0], line[0]).parse::<usize>().unwrap();
-            } else {
-                // println!(
-                //     "{count} adding: {}{}",
-                //     line.first().unwrap(),
-                //     line.last().unwrap()
-                // );
-                answer += format!("{}{}", line.first().unwrap(), line.last().unwrap())
-                    .parse::<usize>()
-                    .unwrap();
+    input_str.lines().for_each(|line| {
+        let mut line = line.to_owned();
+        let mut numbers_per_line = Vec::new();
+
+        while !line.is_empty() {
+            if let Some(m) = r.find(&line) {
+                numbers_per_line.push(extract_number_from_match(m).unwrap());
             }
+            line.drain(..1);
         }
+        // Assuming each line has at-least one number
+        answer += numbers_per_line.first().unwrap() * 10
+            + numbers_per_line
+                .last()
+                .unwrap_or(numbers_per_line.first().unwrap());
     });
+
     println!("p2: {input_file} answer: {answer}");
 }
