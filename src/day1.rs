@@ -42,24 +42,57 @@
 //
 // What is the sum of all of the calibration values?
 
-pub fn solution_p1(input_file: &str) {
-    let input_str = std::fs::read_to_string(input_file).unwrap();
-    let mut answer = 0;
-    input_str.lines().for_each(|line| {
-        let numbers_per_line = line
-            .chars()
-            .filter_map(|c| c.to_digit(10))
-            .collect::<Vec<_>>();
-        // println!("{numbers_per_line:?}");
+use crate::Solution;
 
-        // Assuming each line has at-least one number
-        answer += numbers_per_line.first().unwrap() * 10
-            + numbers_per_line
-                .last()
-                .unwrap_or(numbers_per_line.first().unwrap());
-    });
+pub struct Day1;
 
-    println!("p1: {input_file} answer: {answer}");
+impl Solution for Day1 {
+    fn solution_p1(path: &str) {
+        let input_str = std::fs::read_to_string(path).unwrap();
+        let mut answer = 0;
+        input_str.lines().for_each(|line| {
+            let numbers_per_line = line
+                .chars()
+                .filter_map(|c| c.to_digit(10))
+                .collect::<Vec<_>>();
+            // println!("{numbers_per_line:?}");
+
+            // Assuming each line has at-least one number
+            answer += numbers_per_line.first().unwrap() * 10
+                + numbers_per_line
+                    .last()
+                    .unwrap_or(numbers_per_line.first().unwrap());
+        });
+
+        println!("p1: {path} answer: {answer}");
+    }
+
+    fn solution_p2(path: &str) {
+        let r =
+            regex::Regex::new(r"([[:digit:]]|zero|one|two|three|four|five|six|seven|eight|nine)")
+                .unwrap();
+
+        let input_str = std::fs::read_to_string(path).unwrap();
+        let mut answer = 0;
+        input_str.lines().for_each(|line| {
+            let mut line = line.to_owned();
+            let mut numbers_per_line = Vec::new();
+
+            while !line.is_empty() {
+                if let Some(m) = r.find(&line) {
+                    numbers_per_line.push(extract_number_from_match(m).unwrap());
+                }
+                line.drain(..1);
+            }
+            // Assuming each line has at-least one number
+            answer += numbers_per_line.first().unwrap() * 10
+                + numbers_per_line
+                    .last()
+                    .unwrap_or(numbers_per_line.first().unwrap());
+        });
+
+        println!("p2: {path} answer: {answer}");
+    }
 }
 
 fn extract_number_from_match(m: regex::Match<'_>) -> Option<usize> {
@@ -77,30 +110,4 @@ fn extract_number_from_match(m: regex::Match<'_>) -> Option<usize> {
         // Because our regex will only extract [0-9] or their alphabetic version
         _ => m.as_str().parse().ok(),
     }
-}
-
-pub fn solution_p2(input_file: &str) {
-    let r = regex::Regex::new(r"([[:digit:]]|zero|one|two|three|four|five|six|seven|eight|nine)")
-        .unwrap();
-
-    let input_str = std::fs::read_to_string(input_file).unwrap();
-    let mut answer = 0;
-    input_str.lines().for_each(|line| {
-        let mut line = line.to_owned();
-        let mut numbers_per_line = Vec::new();
-
-        while !line.is_empty() {
-            if let Some(m) = r.find(&line) {
-                numbers_per_line.push(extract_number_from_match(m).unwrap());
-            }
-            line.drain(..1);
-        }
-        // Assuming each line has at-least one number
-        answer += numbers_per_line.first().unwrap() * 10
-            + numbers_per_line
-                .last()
-                .unwrap_or(numbers_per_line.first().unwrap());
-    });
-
-    println!("p2: {input_file} answer: {answer}");
 }
