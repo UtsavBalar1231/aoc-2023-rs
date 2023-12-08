@@ -1,5 +1,6 @@
 pub mod day1;
 pub mod day2;
+pub mod day3;
 pub mod utils;
 
 pub fn solution(day: u8) {
@@ -17,6 +18,13 @@ pub fn solution(day: u8) {
 
             day2::Day2::solution_p2("day2p2_example.txt");
             day2::Day2::solution_p2("day2p1.txt");
+        }
+        3 => {
+            day3::Day3::solution_p1("day3p1_example.txt");
+            day3::Day3::solution_p1("day3p1.txt");
+
+            day3::Day3::solution_p2("day3p1_example.txt");
+            day3::Day3::solution_p2("day3p1.txt");
         }
         _ => (),
     }
