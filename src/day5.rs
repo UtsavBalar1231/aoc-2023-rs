@@ -156,15 +156,16 @@ impl Solution for Day5 {
 
                 let mut data_map: HashMap<usize, usize> = HashMap::new();
 
-                for conversion_data in conversion_data {
-                    for i in 0..conversion_data.2 {
-                        data_map.insert(conversion_data.1 + i, conversion_data.0 + i);
-                    }
+                conversion_data.iter().for_each(|conversion_data| {
+                    (0..conversion_data.2).for_each(|idx| {
+                        data_map.insert(conversion_data.1 + idx, conversion_data.0 + idx);
+                    });
+                });
 
-                    // println!("Data map: {:?}", data_map);
-                }
+                // println!("Data map: {:?}", data_map);
 
                 if let Some(&dest) = data_map.get(&loc) {
+                    // println!("{seed} -> {loc} -> {dest}");
                     loc = dest;
                 }
             });
@@ -174,8 +175,10 @@ impl Solution for Day5 {
             answer.push(loc);
         }
 
-        answer.sort();
-        println!("p1: {path}, answer: {answer}", answer = answer[0]);
+        println!(
+            "p1: {path}, answer: {answer}",
+            answer = answer.iter().min().unwrap()
+        );
     }
 
     fn solution_p2(path: &str) {
